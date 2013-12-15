@@ -4,7 +4,12 @@
   <head>
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="app.css">
+    <link rel="stylesheet" type="text/css" href="github-fork-ribbon-css/gh-fork-ribbon.css">
+
+    <script src="http://code.jquery.com/jquery-2.0.3.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js"></script>
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="bootstrap-angular/ui-bootstrap-0.7.0.min.js"></script>
     <script src="angular-youtube-player-api.js"></script>
     <script src="app.js"></script>
   </head>
@@ -14,29 +19,37 @@
     <div ng-controller="YoutubeCtrl">
 
       <h1>FastTube</h1>
+      <div class="btn-group loop">
+        <button type="button" class="btn btn-primary btn-xs" ng-model="loop" btn-radio="'none'">No loop</button>
+        <button type="button" class="btn btn-primary btn-xs" ng-model="loop" btn-radio="'one'">Loop one</button>
+        <button type="button" class="btn btn-primary btn-xs" ng-model="loop" btn-radio="'all'">Loop all</button>
+    </div>
 
       <div id="searchcontainer">
         <form ng-submit="search(q)">
-          <input type="text" ng-model="q" ng-change="search(q)" placeholder="Search youtube" class="form-control search" autofocus>
+          <input tabindex="1" type="text" ng-model="q" placeholder="Search youtube" class="form-control search" autofocus>
         </form>
       </div>
 
       <div id="searchResultsContainer">
-        <h2>Search results ({{searchResults.length}})</h2>
-        <div id="searchResults">
-          <div ng-repeat="searchResult in searchResults" ng-click="addToPlaylist(searchResult)" class="searchResult">
+        <h2>Search results ({{searchResults.length}})</h2><a ng-click="clearSearchResults()" class="clearSearchResults" ng-show="searchResults.length">Clear</a>
+        <ul id="searchResults">
+          <li ng-repeat="searchResult in searchResults" ng-click="addToPlaylist(searchResult)" class="searchResult" tabindex="{{ $index*10 + 1 }}">
             <img ng-src="{{searchResult.thumbnail}}">
             <div>{{searchResult.title}}</div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
 
       <div id="playlistContainer">
-        <h2>Playlist  ({{playlist.length}})</h2>
+        <h2>Playlist  ({{playlist.length}})</h2><a ng-click="clearPlaylist()" class="clearPlaylist" ng-show="playlist.length">Clear</a>
         <div id="playlist">
-          <div ng-repeat="item in playlist track by $index" ng-click="play(item.hash)" class="playlistItem" ng-class="{active:isActive(item)}">
-            <img ng-src="{{item.thumbnail}}">
-            <div>{{item.title}} <a ng-click="deleteFromPlaylist(item.hash)">[X]</a></div>
+          <div ng-repeat="item in playlist track by $index" class="playlistItem" ng-class="{active:isActive(item)}">
+            <a id="{{item.hash}}" class="anchor"></a>
+            <div class="inner">
+              <img ng-src="{{item.thumbnail}}" ng-click="play(item.hash)">
+              <div><a ng-click="deleteFromPlaylist(item.hash)">[X]</a> <span ng-click="play(item.hash)">{{item.title}}</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -44,8 +57,24 @@
       <div id="playerContainer">
         <h2>{{currentTitle}}</h2>
         <div youtube-player id="player"></div>
+
+        <div id="relatedContainer" ng-show="current">
+          <h2>Related</h2>
+          <div id="related" ng-repeat="item in related" ng-click="addToPlaylist(item)">
+            <img ng-src="{{item.thumbnail}}">
+            <div>{{item.title}}</div>
+          </div>
+        </div>
+
       </div>
 
     </div>
+
+    <div class="github-fork-ribbon-wrapper right-bottom">
+      <div class="github-fork-ribbon">
+        <a href="https://github.com/betz/fasttube">Fork me on GitHub</a>
+      </div>
+    </div>
+
   </body>
 </html>

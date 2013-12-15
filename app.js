@@ -1,10 +1,11 @@
-angular.module('app', ['youtube'])
+angular.module('app', ['youtube', 'ui.bootstrap'])
 
-function YoutubeCtrl($scope, $window, $http, $location, youtubePlayerApi) {
+function YoutubeCtrl($scope, $window, $http, $location, $anchorScroll, youtubePlayerApi) {
 
   $scope.searchResults = [];
   $scope.playlist = [];
   $scope.current = false;
+  $scope.loop = "none";
 
   console.log($location);
 
@@ -33,15 +34,21 @@ function YoutubeCtrl($scope, $window, $http, $location, youtubePlayerApi) {
   $scope.getNext = function () {
     var playlist = $scope.playlist;
 
-    if(!$scope.current) {
-      return playlist[0];
-    }
-
     for (var i = 0; i < playlist.length; i++) {
       if(playlist[i].hash == $scope.current) {
+        
+        if($scope.loop == 'one') {
+          return playlist[i];
+        }
+
+        if($scope.loop == 'all' && !playlist[i+1]) {
+          return playlist[0];
+        }
+
         if(!playlist[i+1]) {
           return false;
         }
+
         return playlist[i+1];
       }
     }
@@ -100,25 +107,65 @@ function YoutubeCtrl($scope, $window, $http, $location, youtubePlayerApi) {
     });
   };
 
+  $scope.searchRelated = function(id) {
+    $scope.related = [];
+
+    $http({
+      method: 'GET', 
+      url: 'https://gdata.youtube.com/feeds/api/videos/' + id + '/related?v=2',
+      params: {
+        'alt': "json", 
+        'max-results': 3, 
+        'v': 2, 
+        'orderby': "relevance", 
+        'format': 5
+      }
+    })
+    .success(function(data, status, headers, config) {
+
+      if(data.feed.entry.length > 0) {
+        for (var r = 0; r < data.feed.entry.length; r++) {
+          var result = {
+            'id': data.feed.entry[r].media$group.yt$videoid.$t,
+            'title': data.feed.entry[r].title.$t,
+            'thumbnail': data.feed.entry[r].media$group.media$thumbnail[1].url,
+            'active': false
+          }
+          $scope.related.push(result);
+        }
+      }
+
+    }).
+    error(function(data, status, headers, config) {
+      console.log(data);
+      console.log(status);
+    });
+  };
+
   $scope.addToPlaylist = function (result) {
-    movie = result.clone();
+    var movie = angular.copy(result)
     movie.hash = token();
     $scope.playlist.push(movie);
-    console.log($scope.playlist);
+    $location.hash(movie.hash);
+    if($scope.playlist.length == 1) {
+      $scope.play(movie.hash);
+    }
   }
 
   $scope.setActive = function (hash) {
     var playlist = $scope.playlist;
     $scope.current = hash;
+    $location.hash(hash);
 
     for (var i = 0; i < playlist.length; i++) {
       playlist[i].active = false;
       if(playlist[i].hash == hash) {
         playlist[i].active = true;
         $scope.currentTitle = playlist[i].title;
+        $scope.searchRelated(playlist[i].id);
       }
     }
-    $scope.$apply();
+    //$scope.$apply();
   }
 
   $scope.isActive = function (item) {
@@ -136,20 +183,18 @@ function YoutubeCtrl($scope, $window, $http, $location, youtubePlayerApi) {
     }
   }
 
+  $scope.clearPlaylist = function () {
+    $scope.playlist = [];
+  }
+
+  $scope.clearSearchResults = function () {
+    $scope.searchResults = [];
+  }
+
 }
 
 
 /* helper functions */
-
-Object.prototype.clone = function() {
-  var newObj = (this instanceof Array) ? [] : {};
-  for (i in this) {
-    if (i == 'clone') continue;
-    if (this[i] && typeof this[i] == "object") {
-      newObj[i] = this[i].clone();
-    } else newObj[i] = this[i]
-  } return newObj;
-};
 
 var rand = function() {
     return Math.random().toString(36).substr(2); // remove `0.`

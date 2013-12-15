@@ -11,6 +11,17 @@ h2 {
   font-size: 20px;
 }
 
+h1, .loop {
+
+}
+
+.loop {
+  position: absolute;
+  right: 20px;
+  top: 25px;
+  margin: 0 0 15px;
+}
+
 .search {
   background: #cc181e;
   color: #fff;
@@ -54,8 +65,20 @@ h2 {
   margin-left: 0;
 }
 
+#playerContainer h2 {
+  max-width: 600px;
+}
+
 #searchResults {
-  max-height: 600px;
+  padding-left: 10px;
+}
+li.searchResult {
+  list-style-type: none;
+  padding: 0;
+}
+
+#searchResults {
+  height: 600px;
   overflow-y: auto;
   padding-right: 10px;
 }
@@ -68,10 +91,30 @@ h2 {
   width: 250px;
 }
 
+#playlistContainer h2,
+.clearPlaylist,
+#searchResultsContainer h2,
+.clearSearchResults {
+  display: inline-block;
+}
+
 #playlist {
-  max-height: 600px;
+  height: 600px;
   overflow-y: auto;
   padding: 0 20px;
+  position: relative;
+}
+
+.clearPlaylist,
+.clearSearchResults {
+  font-size: 13px;
+}
+
+#playlist .remove {
+  position: absolute;
+  top: 0px;
+  right: 3px;
+  color: #fff;
 }
 
 #playlist img {
@@ -79,7 +122,10 @@ h2 {
 }
 
 .searchResult:hover,
-.playlistItem:hover {
+.playlistItem:hover,
+#related:hover,
+.clearPlaylist,
+.clearSearchResults {
   cursor: pointer;
 }
 
@@ -87,11 +133,12 @@ h2 {
   padding: 5px;
 }
 
-.playlistItem {
+.playlistItem .inner {
   padding: 5px;
+  position: relative;
 }
 
-.playlistItem.active {
+.playlistItem.active .inner {
   background: #cc181e;
   color: #fff;
 }
@@ -99,3 +146,26 @@ h2 {
 #player {
   margin: 0 20px;
 }
+#relatedContainer {
+  margin: 0 20px;
+}
+
+#relatedContainer h2 {
+  margin: 5px 0;
+}
+
+#related {
+  /*display: inline-block;*/
+  float: left;
+  width: 200px;
+  margin: 10px 20px 0 0;
+}
+
+#related img {
+  width: 100%;
+}
+
+.anchor {
+  margin-top: 5px;
+}
+
